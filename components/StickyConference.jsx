@@ -345,20 +345,36 @@ export default function StickyConference() {
 
       return cardRefs.current.map((_, i) => {
         if (i < activeIndex) {
-          return { yPercent: PARK_Y, rotationX: PARK_ROT, scale: 1 };
+          return { yPercent: PARK_Y, rotationX: PARK_ROT, scale: 1, depth: 0 };
         } else if (i === activeIndex) {
           return {
             yPercent: lerp(-50, EXIT_Y, e),
             rotationX: lerp(0, EXIT_ROT, e),
             scale: lerp(1, EXIT_SCALE, e),
+            depth: 0,
           };
         } else {
           const behind = i - activeIndex;
           const yo = (behind - e) * Y_OFFSET;
           const sc = 1 - (behind - e) * SCALE_STEP;
-          return { yPercent: -50 + yo, rotationX: 0, scale: sc };
+          // depth: how many "slots" back this card currently sits, used to
+          // gently dim/recede cards further down the stack for a more
+          // premium sense of depth (front card stays fully bright/sharp).
+          const depth = Math.max(0, behind - e);
+          return { yPercent: -50 + yo, rotationX: 0, scale: sc, depth };
         }
       });
+    }
+
+    // Shared visual treatment for stack depth: subtle darkening + blur so
+    // cards further back in the pile recede instead of all reading at the
+    // same brightness/sharpness as the front card.
+    function depthStyle(depth) {
+      const clamped = Math.min(depth, 4);
+      return {
+        filter: `brightness(${1 - clamped * 0.05}) saturate(${1 - clamped * 0.04})`,
+        opacity: 1 - clamped * 0.035,
+      };
     }
 
     function syncExpandedState() {
@@ -479,12 +495,14 @@ export default function StickyConference() {
         cardRefs.current.forEach((card, i) => {
           if (!card) return;
           const target = layout[i];
+          const { filter, opacity: depthOpacity } = depthStyle(target.depth || 0);
           gsap.to(card, {
             xPercent: -50,
             yPercent: target.yPercent,
             rotationX: target.rotationX,
             scale: target.scale,
-            opacity: 1,
+            opacity: depthOpacity,
+            filter,
             pointerEvents: "auto",
             duration: reduceMotion ? 0.01 : 0.45,
             ease: "power3.out",
@@ -600,22 +618,41 @@ export default function StickyConference() {
 
       // --- Paper-stack committee cards ---
       cardRefs.current.forEach((card, i) => {
+        const { filter, opacity } = depthStyle(i);
         gsap.set(card, {
           xPercent: -50,
           yPercent: -50 + i * Y_OFFSET,
           scale: 1 - i * SCALE_STEP,
           zIndex: total - i,
+          opacity,
+          filter,
           force3D: true,
         });
       });
 
+      // Use the settled viewport height (visualViewport, when available) rather
+      // than window.innerHeight directly: on mobile browsers window.innerHeight
+      // still reflects the address-bar-visible (taller) viewport on first paint,
+      // which makes the pin distance too long. That mismatch is what produces
+      // the stray empty gap at the bottom of the stacked cards section right
+      // after it unpins — the reserved spacer briefly outlives the actual
+      // pinned content because it was sized against a viewport that no longer
+      // exists once the browser chrome settles.
+      const getViewportHeight = () =>
+        (typeof window !== "undefined" &&
+          window.visualViewport &&
+          window.visualViewport.height) ||
+        window.innerHeight ||
+        720;
+
       stackTriggerRef.current = ScrollTrigger.create({
         trigger: stage.current,
         start: "top top",
-        end: `+=${(window.innerHeight || 720) * (total === 6 ? 8.5 : 6.5)}px`,
+        end: () => `+=${getViewportHeight() * (total === 6 ? 8.5 : 6.5)}`,
         pin: true,
         pinSpacing: true,
         scrub: 1.1,
+        invalidateOnRefresh: true,
         onUpdate(self) {
           if (activeCardIdRef.current != null) return;
           const layout = computeStackLayout();
@@ -623,10 +660,13 @@ export default function StickyConference() {
           cardRefs.current.forEach((card, i) => {
             if (!card) return;
             const target = layout[i];
+            const { filter, opacity } = depthStyle(target.depth || 0);
             gsap.set(card, {
               yPercent: target.yPercent,
               rotationX: target.rotationX,
               scale: target.scale,
+              opacity,
+              filter,
             });
           });
         },
@@ -646,12 +686,28 @@ export default function StickyConference() {
     // every toolbar flicker, but that also means the very first measurement
     // must already reflect the settled viewport — otherwise the pinned
     // committees section reserves the wrong scroll distance and a stray
-    // empty strip shows up at the bottom once it unpins. One resync shortly
-    // after mount, before the user starts scrolling, fixes that.
-    const settleRefreshId = window.setTimeout(() => ScrollTrigger.refresh(), 250);
+    // empty strip shows up at the bottom once it unpins. A single resync
+    // used to run once at a fixed 250ms delay, which was often either too
+    // early (browser chrome hadn't settled yet) or wasted if it had already
+    // settled sooner. Instead, refresh a few times over the first second
+    // (covering slow devices) and again on visualViewport resize/orientation
+    // change, so the reserved pin distance always matches the real viewport.
+    const settleRefreshIds = [80, 250, 600, 1000].map((delay) =>
+      window.setTimeout(() => ScrollTrigger.refresh(), delay)
+    );
+
+    const handleViewportResize = () => ScrollTrigger.refresh();
+    if (typeof window !== "undefined" && window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleViewportResize);
+    }
+    window.addEventListener("orientationchange", handleViewportResize);
 
     return () => {
-      window.clearTimeout(settleRefreshId);
+      settleRefreshIds.forEach((id) => window.clearTimeout(id));
+      if (typeof window !== "undefined" && window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleViewportResize);
+      }
+      window.removeEventListener("orientationchange", handleViewportResize);
       cleanupSync();
       ctx.revert();
       gsap.ticker.remove(ticker);
@@ -903,7 +959,7 @@ export default function StickyConference() {
           <div
             key={c.id}
             ref={(el) => (cardRefs.current[i] = el)}
-            className={`card group absolute top-1/2 left-1/2 grid w-[clamp(320px,56vw,780px)] md:w-[clamp(380px,56vw,780px)] h-[min(72vh,700px)] md:h-[min(76vh,700px)] grid-rows-[auto_minmax(0,1fr)_auto] gap-[0.9rem] md:gap-[1.1rem] rounded-[1.4rem] md:rounded-[1.6rem] p-[1.2rem] md:p-[1.5rem] pb-[1.2rem] md:pb-[1.4rem] text-paper origin-top [will-change:transform] border border-[rgba(243,250,246,0.1)] [box-shadow:0_50px_100px_-40px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.06)] max-md:w-[calc(100%-1.8rem)] max-md:left-[50%]`}
+            className={`card group absolute top-1/2 left-1/2 grid w-[clamp(320px,56vw,780px)] md:w-[clamp(380px,56vw,780px)] h-[min(72vh,700px)] md:h-[min(76vh,700px)] grid-rows-[auto_minmax(0,1fr)_auto] gap-[0.9rem] md:gap-[1.1rem] rounded-[1.4rem] md:rounded-[1.6rem] p-[1.2rem] md:p-[1.5rem] pb-[1.2rem] md:pb-[1.4rem] text-paper origin-top [will-change:transform,filter,opacity] border border-[rgba(243,250,246,0.1)] [box-shadow:0_10px_30px_-18px_rgba(0,0,0,0.4),0_50px_100px_-40px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.06)] max-md:w-[calc(100%-1.8rem)]`}
             style={{
               backgroundImage: `linear-gradient(155deg, ${CARD_ACCENT_TO} 0%, ${CARD_ACCENT_FROM} 100%)`,
             }}
