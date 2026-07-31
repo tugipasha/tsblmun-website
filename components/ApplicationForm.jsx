@@ -225,7 +225,7 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
             ×
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto overscroll-contain px-[1.1rem] pt-[1.1rem] md:px-[2.2rem] md:pt-[2.2rem] [padding-bottom:max(1.6rem,env(safe-area-inset-bottom))] md:pb-[2.2rem]">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] px-[1.1rem] pt-[1.1rem] md:px-[2.2rem] md:pt-[2.2rem] [padding-bottom:max(1.6rem,env(safe-area-inset-bottom))] md:pb-[2.2rem]">
           {children}
         </div>
       </div>
