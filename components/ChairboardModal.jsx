@@ -76,7 +76,24 @@ export default function ChairboardModal({ open, onClose }) {
   };
 
   return (
-    <ApplicationModal open={open} onClose={handleClose} roleTag="Chairboard">
+    <ApplicationModal
+      open={open}
+      onClose={handleClose}
+      roleTag="Chairboard"
+      footer={
+        !done && (
+          <StepNav
+            step={step}
+            total={STEPS.length}
+            onBack={() => setStep((s) => Math.max(1, s - 1))}
+            onNext={handleNext}
+            canNext={canNext}
+            submitting={submitting}
+            isLast={step === STEPS.length}
+          />
+        )
+      }
+    >
       {done ? (
         <SuccessPanel roleLabel="Chairboard" onClose={handleClose} />
       ) : (
@@ -172,16 +189,6 @@ export default function ChairboardModal({ open, onClose }) {
               </Field>
             </div>
           )}
-
-          <StepNav
-            step={step}
-            total={STEPS.length}
-            onBack={() => setStep((s) => Math.max(1, s - 1))}
-            onNext={handleNext}
-            canNext={canNext}
-            submitting={submitting}
-            isLast={step === STEPS.length}
-          />
         </>
       )}
     </ApplicationModal>

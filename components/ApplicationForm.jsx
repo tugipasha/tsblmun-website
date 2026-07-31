@@ -181,7 +181,7 @@ export function PathStepper({ steps, current }) {
 
 /* ---------- modal window shell ---------- */
 
-export function ApplicationModal({ open, onClose, roleTag, children }) {
+export function ApplicationModal({ open, onClose, roleTag, footer, children }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -247,10 +247,15 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
         </div>
         <div
           data-lenis-prevent
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-[1.1rem] pt-[1.1rem] md:px-[2.2rem] md:pt-[2.2rem] [padding-bottom:max(1.6rem,env(safe-area-inset-bottom))] md:pb-[2.2rem]"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-[1.1rem] pt-[1.1rem] md:px-[2.2rem] md:pt-[2.2rem] pb-[1.1rem] md:pb-[2.2rem]"
         >
           {children}
         </div>
+        {footer && (
+          <div className="shrink-0 border-t border-[rgba(243,250,246,0.08)] md:border-t-0 bg-[#0f2725] md:bg-transparent px-[1.1rem] md:px-[2.2rem] pt-[0.9rem] md:pt-0 pb-[calc(0.9rem+env(safe-area-inset-bottom))] md:pb-[2.2rem]">
+            {footer}
+          </div>
+        )}
       </div>
       <style jsx global>{`
         @keyframes fadeIn {
@@ -269,7 +274,7 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
 
 export function StepNav({ step, total, onBack, onNext, canNext, submitting, isLast }) {
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-[1] mt-[1.6rem] -mx-[1.1rem] md:mx-0 md:static border-t border-[rgba(243,250,246,0.08)] md:border-t-0 bg-[#0f2725] md:bg-transparent px-[1.1rem] md:px-0 pt-[0.9rem] md:pt-0 pb-[calc(0.9rem+env(safe-area-inset-bottom))] md:pb-0 flex items-center justify-between gap-[0.7rem] md:gap-[1rem]">
+    <div className="flex items-center justify-between gap-[0.7rem] md:gap-[1rem]">
       <button
         type="button"
         onClick={onBack}

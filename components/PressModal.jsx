@@ -60,7 +60,24 @@ export default function PressModal({ open, onClose }) {
   };
 
   return (
-    <ApplicationModal open={open} onClose={handleClose} roleTag="Press">
+    <ApplicationModal
+      open={open}
+      onClose={handleClose}
+      roleTag="Press"
+      footer={
+        !done && (
+          <StepNav
+            step={step}
+            total={STEPS.length}
+            onBack={() => setStep((s) => Math.max(1, s - 1))}
+            onNext={handleNext}
+            canNext={canNext}
+            submitting={submitting}
+            isLast={step === STEPS.length}
+          />
+        )
+      }
+    >
       {done ? (
         <SuccessPanel roleLabel="Press" onClose={handleClose} />
       ) : (
@@ -106,16 +123,6 @@ export default function PressModal({ open, onClose }) {
               </Field>
             </div>
           )}
-
-          <StepNav
-            step={step}
-            total={STEPS.length}
-            onBack={() => setStep((s) => Math.max(1, s - 1))}
-            onNext={handleNext}
-            canNext={canNext}
-            submitting={submitting}
-            isLast={step === STEPS.length}
-          />
         </>
       )}
     </ApplicationModal>

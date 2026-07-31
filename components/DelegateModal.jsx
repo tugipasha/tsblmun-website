@@ -61,7 +61,24 @@ export default function DelegateModal({ open, onClose }) {
   };
 
   return (
-    <ApplicationModal open={open} onClose={handleClose} roleTag="Delegate">
+    <ApplicationModal
+      open={open}
+      onClose={handleClose}
+      roleTag="Delegate"
+      footer={
+        !done && (
+          <StepNav
+            step={step}
+            total={STEPS.length}
+            onBack={() => setStep((s) => Math.max(1, s - 1))}
+            onNext={handleNext}
+            canNext={canNext}
+            submitting={submitting}
+            isLast={step === STEPS.length}
+          />
+        )
+      }
+    >
       {done ? (
         <SuccessPanel roleLabel="a Delegate" onClose={handleClose} />
       ) : (
@@ -108,16 +125,6 @@ export default function DelegateModal({ open, onClose }) {
               </Field>
             </div>
           )}
-
-          <StepNav
-            step={step}
-            total={STEPS.length}
-            onBack={() => setStep((s) => Math.max(1, s - 1))}
-            onNext={handleNext}
-            canNext={canNext}
-            submitting={submitting}
-            isLast={step === STEPS.length}
-          />
         </>
       )}
     </ApplicationModal>
