@@ -10,6 +10,10 @@ import AdminModal from "./AdminModal";
 import PressModal from "./PressModal";
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
+
+const CARD_ACCENT_FROM = "#12332f";
+const CARD_ACCENT_TO = "#1d4a43";
 
 const CARDS = [
   {
@@ -18,8 +22,6 @@ const CARDS = [
     cat: "Security Council",
     pre: "Global ",
     em: "Peace",
-    accentFrom: "#1a7b6d",
-    accentTo: "#2aae8b",
     img: "/committee-img-1.jpg",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
@@ -30,8 +32,6 @@ const CARDS = [
     cat: "Human Rights Council",
     pre: "Human ",
     em: "Dignity",
-    accentFrom: "#1e6859",
-    accentTo: "#2d9a7a",
     img: "/committee-img-2.jpg",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet.\n\nDuis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra.",
@@ -42,8 +42,6 @@ const CARDS = [
     cat: "Economic and Social",
     pre: "Shared ",
     em: "Prosperity",
-    accentFrom: "#184c5c",
-    accentTo: "#24868e",
     img: "/committee-img-3.jpg",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut in dapibus odio. Mauris vel risus vitae ligula volutpat tincidunt id at magna. Aliquam erat volutpat. Phasellus interdum ligula sit amet magna fermentum, vitae dignissim sem sodales.\n\nSuspendisse potenti. Quisque dictum finibus justo, a pretium ipsum efficitur in. Aenean feugiat magna id dolor tincidunt, et aliquet massa vulputate.",
@@ -54,8 +52,6 @@ const CARDS = [
     cat: "Crisis Committee",
     pre: "Turning ",
     em: "Point",
-    accentFrom: "#223e5c",
-    accentTo: "#2f6a8d",
     img: "/committee-img-4.jpg",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus consequat lectus et magna tempor, a dapibus justo molestie. Nam porttitor leo vitae est blandit, in finibus elit convallis.\n\nCurabitur euismod, ligula vel faucibus vehicula, augue arcu fermentum quam, et efficitur velit nisl sed risus. Integer nec luctus orci. Praesent ac mi sagittis, porta velit et, sollicitudin nunc.",
@@ -66,8 +62,6 @@ const CARDS = [
     cat: "Environmental Council",
     pre: "Climate ",
     em: "Future",
-    accentFrom: "#1f6b4a",
-    accentTo: "#2e9868",
     img: "/committee-img-5.jpg",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a metus a eros lobortis elementum in eget neque. Etiam congue dolor vel justo pretium, ut vulputate sem auctor.\n\nDonec egestas ullamcorper sapien, vitae hendrerit nisi tempus a. Cras feugiat varius libero, sed malesuada lectus blandit at. Aliquam erat volutpat. Morbi auctor scelerisque est sit amet rutrum.",
@@ -78,8 +72,6 @@ const CARDS = [
     cat: "Legal Committee",
     pre: "Rule of ",
     em: "Law",
-    accentFrom: "#2a4460",
-    accentTo: "#3d6b94",
     img: "/committee-img-6.jpg",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Pellentesque sit amet augue ac eros pretium facilisis.\n\nMaecenas tempor, sapien sit amet posuere porta, dolor ex pellentesque lectus, eget dictum justo nisi sed sem. Proin fermentum, orci non vestibulum congue, erat nibh rhoncus libero.",
@@ -232,6 +224,8 @@ export default function StickyConference() {
   const root = useRef(null);
   const stage = useRef(null);
   const homeRef = useRef(null);
+  const teamRef = useRef(null);
+  const contactRef = useRef(null);
   const cardRefs = useRef([]);
   const detailWrapRef = useRef(null);
   const introOverlayRef = useRef(null);
@@ -248,6 +242,13 @@ export default function StickyConference() {
   const lenisRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openModal, setOpenModal] = useState(null); // "delegate" | "chairboard" | "admin" | "press" | null
+
+  useEffect(() => {
+    const lenis = lenisRef.current;
+    if (!lenis) return;
+    if (openModal) lenis.stop();
+    else lenis.start();
+  }, [openModal]);
   const syncExpandedStateRef = useRef(null);
   const [teamIndex, setTeamIndex] = useState(0);
 
@@ -389,6 +390,13 @@ export default function StickyConference() {
           });
         });
 
+        // On desktop the expanded card sits off-center to leave room for the
+        // side detail panel; on mobile/tablet there's no side panel, so it
+        // must be dead-center or it renders partly off-screen.
+        const isDesktopLayout =
+          typeof window !== "undefined" && window.innerWidth >= 1024;
+        const expandedXPercent = isDesktopLayout ? -68 : -50;
+
         // FLIP-style open: animate from the clicked card's real on-screen
         // position/size into the expanded card's resting position, so the
         // expansion visually grows out of the card that was clicked.
@@ -400,7 +408,7 @@ export default function StickyConference() {
         if (sourceCard && !reduceMotion) {
           const from = sourceCard.getBoundingClientRect();
           gsap.set(expandedCard, {
-            xPercent: -68,
+            xPercent: expandedXPercent,
             yPercent: -50,
             x: 0,
             y: 0,
@@ -439,9 +447,9 @@ export default function StickyConference() {
         } else {
           gsap.fromTo(
             expandedCard,
-            { xPercent: -68, yPercent: -50, scale: 0.94, opacity: 0 },
+            { xPercent: expandedXPercent, yPercent: -50, scale: 0.94, opacity: 0 },
             {
-              xPercent: -68,
+              xPercent: expandedXPercent,
               yPercent: -50,
               scale: 1,
               opacity: 1,
@@ -561,6 +569,34 @@ export default function StickyConference() {
           },
         });
       }
+
+      // --- Work → Team / Team → Contact: same paper-push-under effect, so
+      // every section transition reads as one paper sliding over the last.
+      [
+        { shrinkEl: stage.current, triggerEl: teamRef.current },
+        { shrinkEl: teamRef.current, triggerEl: contactRef.current },
+      ].forEach(({ shrinkEl, triggerEl }) => {
+        if (!shrinkEl || !triggerEl) return;
+        gsap.set(shrinkEl, { willChange: "transform, opacity" });
+        ScrollTrigger.create({
+          trigger: triggerEl,
+          start: "top bottom",
+          end: "top top",
+          scrub: 0.8,
+          onUpdate(self) {
+            const p = self.progress;
+            const s = 1 - 0.06 * p;
+            const y = -32 * p;
+            const o = 1 - 0.3 * p;
+            gsap.set(shrinkEl, {
+              scale: s,
+              y,
+              opacity: o,
+              force3D: true,
+            });
+          },
+        });
+      });
 
       // --- Paper-stack committee cards ---
       cardRefs.current.forEach((card, i) => {
@@ -858,7 +894,7 @@ export default function StickyConference() {
             ref={(el) => (cardRefs.current[i] = el)}
             className={`card group absolute top-1/2 left-1/2 grid w-[clamp(320px,56vw,780px)] md:w-[clamp(380px,56vw,780px)] h-[min(72vh,700px)] md:h-[min(76vh,700px)] grid-rows-[auto_minmax(0,1fr)_auto] gap-[0.9rem] md:gap-[1.1rem] rounded-[1.4rem] md:rounded-[1.6rem] p-[1.2rem] md:p-[1.5rem] pb-[1.2rem] md:pb-[1.4rem] text-paper origin-top [will-change:transform] border border-[rgba(243,250,246,0.1)] [box-shadow:0_50px_100px_-40px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.06)] max-md:w-[calc(100%-1.8rem)] max-md:left-[50%]`}
             style={{
-              backgroundImage: `linear-gradient(155deg, ${c.accentTo} 0%, ${c.accentFrom} 100%)`,
+              backgroundImage: `linear-gradient(155deg, ${CARD_ACCENT_TO} 0%, ${CARD_ACCENT_FROM} 100%)`,
             }}
           >
             <div className="flex items-center justify-between gap-2 text-[0.72rem] md:text-[0.74rem] tracking-[0.16em] uppercase">
@@ -872,7 +908,7 @@ export default function StickyConference() {
             <div
               className="relative overflow-hidden rounded-[1rem] md:rounded-[1.1rem] border border-[rgba(243,250,246,0.1)]"
               style={{
-                backgroundImage: `radial-gradient(circle at 30% 20%, ${c.accentTo}55 0%, ${c.accentFrom}88 55%, ${c.accentFrom}aa 100%), repeating-linear-gradient(45deg, rgba(243,250,246,0.04) 0 2px, transparent 2px 16px)`,
+                backgroundImage: `radial-gradient(circle at 30% 20%, ${CARD_ACCENT_TO}55 0%, ${CARD_ACCENT_FROM}88 55%, ${CARD_ACCENT_FROM}aa 100%), repeating-linear-gradient(45deg, rgba(243,250,246,0.04) 0 2px, transparent 2px 16px)`,
               }}
             >
               <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
@@ -909,7 +945,7 @@ export default function StickyConference() {
           <div
             className="expanded-card card group absolute top-1/2 left-1/2 z-20 w-[calc(100%-1.6rem)] max-w-[420px] lg:w-[clamp(320px,44vw,600px)] lg:max-w-none h-[min(82vh,720px)] lg:h-[min(74vh,700px)] grid grid-rows-[auto_auto_minmax(0,1fr)_auto] lg:grid-rows-[auto_minmax(0,1fr)_auto] gap-[0.7rem] md:gap-[0.9rem] lg:gap-[1rem] rounded-[1.4rem] lg:rounded-[1.6rem] p-[1.1rem] md:p-[1.3rem] lg:p-[1.6rem] text-paper origin-center [will-change:transform] border border-[rgba(243,250,246,0.18)] [box-shadow:0_60px_120px_-40px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.08)]"
             style={{
-              backgroundImage: `linear-gradient(155deg, ${activeCard.accentTo} 0%, ${activeCard.accentFrom} 100%)`,
+              backgroundImage: `linear-gradient(155deg, ${CARD_ACCENT_TO} 0%, ${CARD_ACCENT_FROM} 100%)`,
             }}
           >
             <div className="flex items-center justify-between gap-2 text-[0.7rem] md:text-[0.76rem] tracking-[0.16em] uppercase">
@@ -923,7 +959,7 @@ export default function StickyConference() {
             <div
               className="relative overflow-hidden rounded-[1rem] lg:rounded-[1.2rem] border border-[rgba(243,250,246,0.12)] h-[clamp(90px,18vh,160px)] lg:h-auto"
               style={{
-                backgroundImage: `radial-gradient(circle at 30% 20%, ${activeCard.accentTo}55 0%, ${activeCard.accentFrom}88 55%, ${activeCard.accentFrom}aa 100%), repeating-linear-gradient(45deg, rgba(243,250,246,0.04) 0 2px, transparent 2px 16px)`,
+                backgroundImage: `radial-gradient(circle at 30% 20%, ${CARD_ACCENT_TO}55 0%, ${CARD_ACCENT_FROM}88 55%, ${CARD_ACCENT_FROM}aa 100%), repeating-linear-gradient(45deg, rgba(243,250,246,0.04) 0 2px, transparent 2px 16px)`,
               }}
             >
               <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/4 via-transparent to-transparent" />
@@ -986,9 +1022,9 @@ export default function StickyConference() {
                 <span
                   className="inline-flex items-center justify-center h-[26px] min-w-[48px] rounded-full px-[0.65rem] font-sans text-[0.58rem] font-medium tracking-[0.14em] uppercase"
                   style={{
-                    color: activeCard.accentTo,
-                    backgroundColor: `${activeCard.accentTo}1a`,
-                    border: `1px solid ${activeCard.accentTo}55`,
+                    color: "var(--gold)",
+                    backgroundColor: "rgba(217,166,86,0.1)",
+                    border: "1px solid rgba(217,166,86,0.35)",
                   }}
                 >
                   {activeCard.cat}
@@ -1031,6 +1067,7 @@ export default function StickyConference() {
       {/* ================ TEAM / SECRETARIAT (z bumped from 5 → 4, since journey removed) ================ */}
       <section
         id="team"
+        ref={teamRef}
         className="paper-panel relative z-[4] w-full min-h-[100svh] overflow-hidden bg-bg flex flex-col justify-center px-[2.4rem] max-md:px-[1.1rem]"
       >
         <div className="section-vignette" aria-hidden="true" />
@@ -1177,6 +1214,7 @@ export default function StickyConference() {
       {/* ================ CONTACT / CTA (z bumped from 6 → 5) ================ */}
       <section
         id="contact"
+        ref={contactRef}
         className="paper-panel relative z-[5] w-full min-h-[100svh] overflow-hidden bg-bg flex flex-col justify-center items-start px-[2.4rem] gap-[1.2rem] md:gap-[1.4rem] max-md:px-[1.1rem]"
       >
         <div className="section-vignette" aria-hidden="true" />
@@ -1274,7 +1312,8 @@ export default function StickyConference() {
         type="button"
         onClick={scrollToTop}
         aria-label="Yukarı çık"
-        className={`fixed bottom-[1.6rem] right-[1.6rem] md:bottom-[2.2rem] md:right-[2.2rem] z-[55] flex items-center justify-center h-[46px] w-[46px] rounded-full border border-[rgba(243,250,246,0.18)] bg-[rgba(10,12,11,0.6)] backdrop-blur-md text-paper transition-all duration-300 hover:border-gold hover:bg-[rgba(217,166,86,0.16)] hover:-translate-y-[2px] ${
+        style={{ bottom: "max(1.6rem, calc(env(safe-area-inset-bottom) + 1rem))" }}
+        className={`fixed right-[1.6rem] md:bottom-[2.2rem] md:right-[2.2rem] z-[55] flex items-center justify-center h-[46px] w-[46px] rounded-full border border-[rgba(243,250,246,0.18)] bg-[rgba(10,12,11,0.6)] backdrop-blur-md text-paper transition-all duration-300 hover:border-gold hover:bg-[rgba(217,166,86,0.16)] hover:-translate-y-[2px] ${
           showTopBtn
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-[10px] pointer-events-none"

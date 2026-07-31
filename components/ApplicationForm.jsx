@@ -210,7 +210,7 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
         onClick={onClose}
       />
       <div
-        className="relative z-[1] w-full max-w-[680px] max-h-[92vh] overflow-y-auto rounded-[1.2rem] md:rounded-[1.4rem] border border-[rgba(243,250,246,0.14)] bg-[#0f2725] [box-shadow:0_60px_120px_-40px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.05)] p-[1.4rem] md:p-[2.2rem] animate-[slideUp_0.3s_cubic-bezier(0.22,1,0.36,1)]"
+        className="relative z-[1] w-full max-w-[680px] max-h-[92svh] overflow-y-auto rounded-[1.2rem] md:rounded-[1.4rem] border border-[rgba(243,250,246,0.14)] bg-[#0f2725] [box-shadow:0_60px_120px_-40px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.05)] p-[1.4rem] md:p-[2.2rem] animate-[slideUp_0.3s_cubic-bezier(0.22,1,0.36,1)]"
       >
         <div className="flex items-center justify-between mb-[1.2rem]">
           <span className="inline-flex items-center h-[24px] rounded-full px-[0.7rem] font-sans text-[0.58rem] font-medium tracking-[0.14em] uppercase text-gold border border-[rgba(217,166,86,0.4)] bg-[rgba(217,166,86,0.08)]">
