@@ -640,7 +640,18 @@ export default function StickyConference() {
       } catch (_) {}
     }, root);
 
+    // Mobile browsers report a taller (chrome-visible) viewport on first
+    // paint, then shrink/settle as the address bar collapses on scroll.
+    // ignoreMobileResize (set globally) stops ScrollTrigger from reacting to
+    // every toolbar flicker, but that also means the very first measurement
+    // must already reflect the settled viewport — otherwise the pinned
+    // committees section reserves the wrong scroll distance and a stray
+    // empty strip shows up at the bottom once it unpins. One resync shortly
+    // after mount, before the user starts scrolling, fixes that.
+    const settleRefreshId = window.setTimeout(() => ScrollTrigger.refresh(), 250);
+
     return () => {
+      window.clearTimeout(settleRefreshId);
       cleanupSync();
       ctx.revert();
       gsap.ticker.remove(ticker);
