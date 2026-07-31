@@ -188,9 +188,29 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    document.body.style.overflow = open ? "hidden" : "";
+    if (!open) return;
+
+    // iOS Safari fix: the page uses `position: sticky` sections, and with
+    // those present, `overflow: hidden` alone on <body> doesn't reliably
+    // stop background scroll — touch events can "leak" into the sticky
+    // ancestors instead of the modal's own scroll container, making the
+    // form appear unscrollable. Locking the body via `position: fixed`
+    // (freezing it at the current scroll offset) avoids that.
+    const scrollY = window.scrollY;
+    const { style } = document.body;
+    style.position = "fixed";
+    style.top = `-${scrollY}px`;
+    style.left = "0";
+    style.right = "0";
+    style.overflow = "hidden";
+
     return () => {
-      document.body.style.overflow = "";
+      style.position = "";
+      style.top = "";
+      style.left = "";
+      style.right = "";
+      style.overflow = "";
+      window.scrollTo(0, scrollY);
     };
   }, [open]);
 
@@ -225,7 +245,10 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
             ×
           </button>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] px-[1.1rem] pt-[1.1rem] md:px-[2.2rem] md:pt-[2.2rem] [padding-bottom:max(1.6rem,env(safe-area-inset-bottom))] md:pb-[2.2rem]">
+        <div
+          data-lenis-prevent
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-[1.1rem] pt-[1.1rem] md:px-[2.2rem] md:pt-[2.2rem] [padding-bottom:max(1.6rem,env(safe-area-inset-bottom))] md:pb-[2.2rem]"
+        >
           {children}
         </div>
       </div>
