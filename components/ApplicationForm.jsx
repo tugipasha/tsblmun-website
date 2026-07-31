@@ -21,7 +21,7 @@ export function Field({ label, required, children, hint }) {
 }
 
 const inputBase =
-  "w-full rounded-[0.65rem] border border-[rgba(243,250,246,0.16)] bg-[rgba(243,250,246,0.04)] px-[0.85rem] py-[0.7rem] text-[0.88rem] text-paper placeholder:text-[rgba(243,250,246,0.32)] outline-none transition-colors duration-200 focus:border-gold focus:bg-[rgba(243,250,246,0.07)]";
+  "w-full rounded-[0.65rem] border border-[rgba(243,250,246,0.16)] bg-[rgba(243,250,246,0.04)] px-[0.85rem] py-[0.75rem] md:py-[0.7rem] text-[1rem] md:text-[0.88rem] text-paper placeholder:text-[rgba(243,250,246,0.32)] outline-none transition-colors duration-200 focus:border-gold focus:bg-[rgba(243,250,246,0.07)]";
 
 export function TextInput(props) {
   return <input {...props} className={inputBase} />;
@@ -48,7 +48,7 @@ export function WordCountArea({ value, onChange, minWords, ...rest }) {
 
 export function RadioGroup({ options, value, onChange }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-[0.55rem]">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-[0.5rem] md:gap-[0.55rem]">
       {options.map((opt) => {
         const active = value === opt;
         return (
@@ -56,10 +56,10 @@ export function RadioGroup({ options, value, onChange }) {
             type="button"
             key={opt}
             onClick={() => onChange(opt)}
-            className={`rounded-[0.6rem] border px-[0.75rem] py-[0.6rem] text-[0.8rem] tracking-[0.02em] text-left transition-all duration-200 ${
+            className={`rounded-[0.6rem] border px-[0.85rem] py-[0.75rem] md:py-[0.6rem] text-[0.82rem] md:text-[0.8rem] tracking-[0.02em] text-left transition-all duration-200 ${
               active
                 ? "border-gold bg-[rgba(217,166,86,0.12)] text-paper"
-                : "border-[rgba(243,250,246,0.14)] bg-[rgba(243,250,246,0.03)] text-muted hover:border-[rgba(243,250,246,0.3)]"
+                : "border-[rgba(243,250,246,0.14)] bg-[rgba(243,250,246,0.03)] text-muted hover:border-[rgba(243,250,246,0.3)] active:border-[rgba(243,250,246,0.3)]"
             }`}
           >
             <span
@@ -85,7 +85,7 @@ export function CheckboxGroup({ options, value, onChange, max }) {
     }
   };
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[0.55rem]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[0.5rem] md:gap-[0.55rem]">
       {options.map((opt) => {
         const active = value.includes(opt);
         const disabled = !active && max && value.length >= max;
@@ -95,12 +95,12 @@ export function CheckboxGroup({ options, value, onChange, max }) {
             key={opt}
             disabled={disabled}
             onClick={() => toggle(opt)}
-            className={`flex items-center gap-[0.55rem] rounded-[0.6rem] border px-[0.75rem] py-[0.6rem] text-[0.8rem] tracking-[0.01em] text-left transition-all duration-200 ${
+            className={`flex items-center gap-[0.55rem] rounded-[0.6rem] border px-[0.85rem] py-[0.75rem] md:py-[0.6rem] text-[0.82rem] md:text-[0.8rem] tracking-[0.01em] text-left transition-all duration-200 ${
               active
                 ? "border-gold bg-[rgba(217,166,86,0.12)] text-paper"
                 : disabled
                 ? "border-[rgba(243,250,246,0.08)] bg-transparent text-[rgba(243,250,246,0.3)] cursor-not-allowed"
-                : "border-[rgba(243,250,246,0.14)] bg-[rgba(243,250,246,0.03)] text-muted hover:border-[rgba(243,250,246,0.3)]"
+                : "border-[rgba(243,250,246,0.14)] bg-[rgba(243,250,246,0.03)] text-muted hover:border-[rgba(243,250,246,0.3)] active:border-[rgba(243,250,246,0.3)]"
             }`}
           >
             <span
@@ -131,16 +131,16 @@ export function CheckboxGroup({ options, value, onChange, max }) {
 
 export function PathStepper({ steps, current }) {
   return (
-    <div className="flex items-center w-full mb-[1.8rem] md:mb-[2.2rem]">
+    <div className="flex items-start w-full mb-[1.6rem] md:mb-[2.2rem]">
       {steps.map((label, i) => {
         const idx = i + 1;
         const done = idx < current;
         const active = idx === current;
         return (
-          <div key={label} className="flex items-center flex-1 last:flex-none">
-            <div className="flex flex-col items-center flex-shrink-0">
+          <div key={label} className="flex items-start flex-1 last:flex-none min-w-0">
+            <div className="flex flex-col items-center flex-shrink-0 w-[52px] md:w-[64px]">
               <div
-                className={`flex items-center justify-center h-[30px] w-[30px] md:h-[34px] md:w-[34px] rounded-full border text-[0.72rem] font-sans transition-all duration-300 ${
+                className={`flex items-center justify-center h-[28px] w-[28px] md:h-[34px] md:w-[34px] rounded-full border text-[0.68rem] md:text-[0.72rem] font-sans transition-all duration-300 ${
                   done
                     ? "bg-gold border-gold text-ink"
                     : active
@@ -149,7 +149,7 @@ export function PathStepper({ steps, current }) {
                 }`}
               >
                 {done ? (
-                  <svg width="12" height="10" viewBox="0 0 10 8" fill="none">
+                  <svg width="11" height="9" viewBox="0 0 10 8" fill="none">
                     <path d="M1 4L3.5 6.5L9 1" stroke="#0e342e" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 ) : (
@@ -157,7 +157,7 @@ export function PathStepper({ steps, current }) {
                 )}
               </div>
               <span
-                className={`mt-[0.45rem] font-sans text-[0.6rem] md:text-[0.66rem] tracking-[0.08em] uppercase whitespace-nowrap ${
+                className={`mt-[0.4rem] font-sans text-[0.54rem] md:text-[0.66rem] leading-[1.25] tracking-[0.04em] md:tracking-[0.08em] uppercase text-center break-words ${
                   active ? "text-paper" : "text-muted"
                 }`}
               >
@@ -165,7 +165,7 @@ export function PathStepper({ steps, current }) {
               </span>
             </div>
             {idx < steps.length && (
-              <div className="flex-1 h-[2px] mx-[0.5rem] md:mx-[0.8rem] mb-[1.1rem] md:mb-[1.3rem] rounded-full overflow-hidden bg-[rgba(243,250,246,0.14)]">
+              <div className="flex-1 h-[2px] mx-[0.3rem] md:mx-[0.8rem] mt-[13px] md:mt-[17px] rounded-full overflow-hidden bg-[rgba(243,250,246,0.14)]">
                 <div
                   className="h-full bg-gold transition-all duration-500 ease-out"
                   style={{ width: done ? "100%" : "0%" }}
@@ -204,28 +204,30 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
   if (!mounted || !open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-[0.8rem] md:p-[2rem]">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center md:items-center md:p-[2rem]">
       <div
         className="absolute inset-0 bg-[rgba(6,18,17,0.72)] backdrop-blur-sm animate-[fadeIn_0.25s_ease]"
         onClick={onClose}
       />
       <div
-        className="relative z-[1] w-full max-w-[680px] max-h-[92svh] overflow-y-auto rounded-[1.2rem] md:rounded-[1.4rem] border border-[rgba(243,250,246,0.14)] bg-[#0f2725] [box-shadow:0_60px_120px_-40px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.05)] p-[1.4rem] md:p-[2.2rem] animate-[slideUp_0.3s_cubic-bezier(0.22,1,0.36,1)]"
+        className="relative z-[1] flex w-full max-w-[680px] flex-col overflow-hidden rounded-t-[1.2rem] md:rounded-[1.4rem] border border-[rgba(243,250,246,0.14)] bg-[#0f2725] [box-shadow:0_60px_120px_-40px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.05)] max-h-[100svh] md:max-h-[92svh] h-[100svh] md:h-auto animate-[slideUp_0.3s_cubic-bezier(0.22,1,0.36,1)]"
       >
-        <div className="flex items-center justify-between mb-[1.2rem]">
+        <div className="flex items-center justify-between shrink-0 border-b border-[rgba(243,250,246,0.08)] bg-[#0f2725] px-[1.1rem] py-[0.9rem] md:px-[2.2rem] md:py-[1.4rem] md:border-b-0 [padding-top:max(0.9rem,env(safe-area-inset-top))]">
           <span className="inline-flex items-center h-[24px] rounded-full px-[0.7rem] font-sans text-[0.58rem] font-medium tracking-[0.14em] uppercase text-gold border border-[rgba(217,166,86,0.4)] bg-[rgba(217,166,86,0.08)]">
             {roleTag}
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center justify-center h-[30px] w-[30px] rounded-full border border-[rgba(243,250,246,0.2)] text-paper text-[0.9rem] hover:bg-paper hover:text-ink transition-colors duration-200"
+            className="flex items-center justify-center h-[34px] w-[34px] md:h-[30px] md:w-[30px] rounded-full border border-[rgba(243,250,246,0.2)] text-paper text-[1rem] md:text-[0.9rem] hover:bg-paper hover:text-ink active:bg-paper active:text-ink transition-colors duration-200"
             aria-label="Close"
           >
             ×
           </button>
         </div>
-        {children}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-[1.1rem] pt-[1.1rem] md:px-[2.2rem] md:pt-[2.2rem] [padding-bottom:max(1.6rem,env(safe-area-inset-bottom))] md:pb-[2.2rem]">
+          {children}
+        </div>
       </div>
       <style jsx global>{`
         @keyframes fadeIn {
@@ -244,15 +246,15 @@ export function ApplicationModal({ open, onClose, roleTag, children }) {
 
 export function StepNav({ step, total, onBack, onNext, canNext, submitting, isLast }) {
   return (
-    <div className="mt-[1.6rem] flex items-center justify-between gap-[1rem]">
+    <div className="sticky bottom-0 left-0 right-0 z-[1] mt-[1.6rem] -mx-[1.1rem] md:mx-0 md:static border-t border-[rgba(243,250,246,0.08)] md:border-t-0 bg-[#0f2725] md:bg-transparent px-[1.1rem] md:px-0 pt-[0.9rem] md:pt-0 pb-[calc(0.9rem+env(safe-area-inset-bottom))] md:pb-0 flex items-center justify-between gap-[0.7rem] md:gap-[1rem]">
       <button
         type="button"
         onClick={onBack}
         disabled={step === 1}
-        className={`inline-flex items-center gap-[0.4em] rounded-full border px-[1.1rem] py-[0.65rem] text-[0.76rem] tracking-[0.06em] uppercase transition-colors duration-200 ${
+        className={`inline-flex items-center justify-center gap-[0.4em] rounded-full border px-[1.1rem] py-[0.8rem] md:py-[0.65rem] text-[0.76rem] tracking-[0.06em] uppercase transition-colors duration-200 shrink-0 ${
           step === 1
             ? "border-[rgba(243,250,246,0.08)] text-[rgba(243,250,246,0.25)] cursor-not-allowed"
-            : "border-[rgba(243,250,246,0.25)] text-paper hover:bg-paper hover:text-ink"
+            : "border-[rgba(243,250,246,0.25)] text-paper hover:bg-paper hover:text-ink active:bg-paper active:text-ink"
         }`}
       >
         ← Back
@@ -261,7 +263,7 @@ export function StepNav({ step, total, onBack, onNext, canNext, submitting, isLa
         type="button"
         onClick={onNext}
         disabled={!canNext || submitting}
-        className={`inline-flex items-center gap-[0.5em] rounded-full px-[1.4rem] py-[0.75rem] text-[0.8rem] tracking-[0.04em] transition-all duration-200 ${
+        className={`flex-1 md:flex-none inline-flex items-center justify-center gap-[0.5em] rounded-full px-[1.4rem] py-[0.8rem] md:py-[0.75rem] text-[0.8rem] tracking-[0.04em] transition-all duration-200 whitespace-nowrap ${
           canNext && !submitting
             ? "bg-paper text-ink hover:-translate-y-[1px] [box-shadow:0_0_0_1px_rgba(217,166,86,0.4),0_16px_36px_-16px_rgba(217,166,86,0.4)]"
             : "bg-[rgba(243,250,246,0.1)] text-[rgba(243,250,246,0.35)] cursor-not-allowed"
