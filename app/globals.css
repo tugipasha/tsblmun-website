@@ -97,6 +97,19 @@ video {
   100% { transform: translateX(100%); }
 }
 
+/* soft depth pass over the hero: dims the frame edges and gently deepens
+   the area behind the copy so the emblem watermark recedes rather than
+   competing with the headline/CTA contrast */
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 50% at 50% 46%, rgba(15, 39, 37, 0.55) 0%, transparent 62%),
+    radial-gradient(120% 90% at 50% 100%, rgba(9, 22, 21, 0.75) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(9, 22, 21, 0.35) 0%, transparent 18%, transparent 82%, rgba(9, 22, 21, 0.5) 100%);
+}
+
 /* living gradient backdrop for the hero — soft, steady tone, gentle wave motion */
 .hero-glow {
   position: absolute;

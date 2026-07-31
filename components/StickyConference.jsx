@@ -224,6 +224,7 @@ export default function StickyConference() {
   const root = useRef(null);
   const stage = useRef(null);
   const homeRef = useRef(null);
+  const emblemRef = useRef(null);
   const teamRef = useRef(null);
   const contactRef = useRef(null);
   const cardRefs = useRef([]);
@@ -565,6 +566,39 @@ export default function StickyConference() {
         });
       }
 
+      // --- Emblem watermark: slow ambient breathing + scroll parallax, so it
+      // reads as a background layer sitting behind the hero copy rather than
+      // a flat, static sticker.
+      if (emblemRef.current) {
+        gsap.set(emblemRef.current, { willChange: "transform, opacity" });
+        gsap.to(emblemRef.current, {
+          scale: reduceMotion ? 1 : 1.045,
+          rotation: reduceMotion ? 0 : 1.2,
+          duration: 10,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          force3D: true,
+        });
+
+        if (homeRef.current) {
+          ScrollTrigger.create({
+            trigger: homeRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.8,
+            onUpdate(self) {
+              const p = self.progress;
+              gsap.set(emblemRef.current, {
+                y: -60 * p,
+                opacity: 1 - 0.55 * p,
+                force3D: true,
+              });
+            },
+          });
+        }
+      }
+
       // --- Home → Work overlay scroll effect: home scales down & slides up under work ---
       if (homeRef.current && stage.current) {
         gsap.set(homeRef.current, { willChange: "transform, opacity" });
@@ -880,6 +914,23 @@ export default function StickyConference() {
         className="paper-panel relative z-[1] w-full min-h-[100svh] overflow-hidden bg-bg flex flex-col items-center justify-center text-center px-[2.4rem] max-md:px-[1.3rem]"
       >
         <div className="hero-glow" aria-hidden="true" />
+
+        {/* Emblem watermark: sits between the glow and the vignette so it
+            reads as an inlaid mark rather than a flat sticker, with a soft
+            radial fade behind it for depth. */}
+        <div
+          ref={emblemRef}
+          className="pointer-events-none absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 w-[min(105vw,1400px)] aspect-square [will-change:transform]"
+          aria-hidden="true"
+        >
+          <div className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,rgba(72,200,170,0.16)_0%,rgba(48,150,140,0.08)_45%,transparent_72%)] blur-[2px]" />
+          <img
+            src="/tree-emblem.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-contain opacity-[0.16] mix-blend-screen [filter:saturate(1.15)_brightness(1.05)]"
+          />
+        </div>
+        <div className="hero-vignette" aria-hidden="true" />
 
         <h1 className="intro-anim relative font-serif font-normal text-[clamp(3.2rem,13vw,7.5rem)] leading-[0.94] tracking-[-0.02em]">
           <span className="block">TSBL MUN</span>
@@ -1361,13 +1412,6 @@ export default function StickyConference() {
         </div>
 
         <div className="relative mt-[1.6rem] md:mt-[2rem] flex flex-col sm:flex-row sm:items-center gap-[1rem] sm:gap-[1.6rem]">
-          <button
-            type="button"
-            onClick={() => setOpenModal("delegate")}
-            className="relative inline-flex items-center justify-center gap-[0.5em] rounded-full bg-paper px-[1.5rem] md:px-[1.8rem] py-[0.85rem] md:py-[1rem] text-[0.85rem] md:text-[0.92rem] tracking-[0.02em] text-ink transition-transform duration-300 hover:-translate-y-[2px] whitespace-nowrap [box-shadow:0_0_0_1px_rgba(217,166,86,0.4),0_20px_50px_-20px_rgba(217,166,86,0.35)]"
-          >
-            Register now <span>↗</span>
-          </button>
           <p className="font-sans text-[0.66rem] md:text-[0.72rem] tracking-[0.12em] uppercase text-muted">
             TSBL MUN — Model United Nations · Istanbul
           </p>
